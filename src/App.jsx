@@ -1,18 +1,17 @@
-import { useState } from 'react';
-import { Container } from './components/Container/Container.jsx';
 import { Header } from './components/Header/Header.jsx';
+import { Navigation } from './components/Navigation/Navigation';
+import { Catalog } from './components/Catalog/Catalog';
+import { Footer } from './components/Footer/Footer';
 
 export const App = () => {
   return (
     <>
       <Header />
       <main>
-        <nav>
-          <Container className="navigation__container" />
-        </nav>
-        <section></section>
+        <Navigation />
+        <Catalog />
       </main>
-      <footer></footer>
+      <Footer />
     </>
   );
 };
