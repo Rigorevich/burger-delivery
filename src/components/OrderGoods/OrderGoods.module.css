@@ -1,0 +1,17 @@
+.goods {
+    flex-grow: 1;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.title {
+    font-weight: 400;
+    margin-bottom: 1px;
+
+}
+
+.weight {
+    color: #B1B1B1;
+    margin-bottom: 6px;
+}
