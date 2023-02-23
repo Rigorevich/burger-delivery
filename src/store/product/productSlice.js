@@ -4,6 +4,7 @@ import { API_URL } from '../../config.js';
 const initialState = {
   products: [],
   error: '',
+  loading: true,
 };
 
 export const productRequest = createAsyncThunk('product/fetch', (category) =>
@@ -22,12 +23,15 @@ const productSlice = createSlice({
     builder
       .addCase(productRequest.pending, (state) => {
         state.error = '';
+        state.loading = true;
       })
       .addCase(productRequest.fulfilled, (state, action) => {
         state.error = '';
+        state.loading = false;
         state.products = action.payload;
       })
       .addCase(productRequest.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload.error;
       });
   },

@@ -20,6 +20,20 @@
     gap: 10px;
 }
 
+.alert {
+    text-align: center;
+}
+
+.alert__title {
+    font-size: 24px;
+    width: 100%;
+}
+
+.alert__description {
+    font-size: 16px;
+}
+
+
 
 @media (min-width: 1024px) {
     .catalog {
