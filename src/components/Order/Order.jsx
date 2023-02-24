@@ -1,25 +1,34 @@
 import style from './Order.module.css';
-import superCheese from '../../assets/img/burger_1.jpg';
 import { OrderGoods } from '../OrderGoods/OrderGoods';
-
-const orderList = ['Супер сырный', 'Картошка фри', 'Жгучий хот-дог'];
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { ordersRequest } from '../../store/order/orderSlice.js';
+import { API_URL } from '../../config.js';
+import { openModal } from '../../store/modal/modalSlice.js';
 
 export const Order = () => {
+  const { goodsOrder, orderList, totalPrice, totalCount } = useSelector((state) => state.order);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(ordersRequest());
+  }, [orderList.length]);
+
   return (
     <div className={style.order}>
       <section className={style.wrapper}>
         <div className={style.header} tabIndex="0" role="button">
           <h2 className={style.title}>Корзина</h2>
 
-          <span className={style.count}>4</span>
+          <span className={style.count}>{totalCount}</span>
         </div>
 
         <div className={style.wrap_list}>
           <ul className={style.list}>
-            {orderList.map((item) => (
-              <li key={item} className={style.item}>
-                <img className={style.image} src={superCheese} alt="Супер сырный" />
-                <OrderGoods good={item} />
+            {goodsOrder?.map((item) => (
+              <li key={item.id} className={style.item}>
+                <img className={style.image} src={`${API_URL}/${item.image}`} alt="Супер сырный" />
+                <OrderGoods {...item} />
               </li>
             ))}
           </ul>
@@ -27,12 +36,14 @@ export const Order = () => {
           <div className={style.total}>
             <p>Итого</p>
             <p>
-              <span className={style.amount}>1279</span>
+              <span className={style.amount}>{totalPrice} </span>
               <span className={style.currency}>₽</span>
             </p>
           </div>
 
-          <button className={style.submit}>Оформить заказ</button>
+          <button className={style.submit} disabled={!goodsOrder.length} onClick={() => dispatch(openModal())}>
+            Оформить заказ
+          </button>
 
           <div className={style.apeal}>
             <p className={style.text}>Бесплатная доставка</p>

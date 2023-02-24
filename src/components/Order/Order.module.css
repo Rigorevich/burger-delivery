@@ -135,6 +135,13 @@
     line-height: 130%;
 }
 
+.submit:disabled {
+    background-color: #bfbfc0;
+    color: #000;
+    opacity: 0.5;
+    cursor: no-drop;
+}
+
 @media (min-width: 768px) {
     .order {
         width: 145px;

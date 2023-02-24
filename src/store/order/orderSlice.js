@@ -1,8 +1,24 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { API_URL } from '../../config.js';
+import { calcTotal } from '../../utils/calcTotal.js';
 
 const initialState = {
   orderList: JSON.parse(localStorage.getItem('order') || '[]'),
+  goodsOrder: [],
+  totalPrice: 0,
+  totalCount: 0,
+  error: '',
 };
+
+export const ordersRequest = createAsyncThunk('order/fetch', (_, { getState }) => {
+  const listId = getState().order.orderList.map((item) => item.id);
+
+  return fetch(`${API_URL}/api/product?list=${listId}`)
+    .then((req) => req.json())
+    .catch((error) => {
+      error;
+    });
+});
 
 export const localeStorageMdw = (store) => (next) => (action) => {
   const nextAction = next(action);
@@ -20,15 +36,49 @@ const orderSlice = createSlice({
   initialState,
   reducers: {
     addProduct: (state, action) => {
-      const product = state.orderList.find((item) => item.id === action.payload.id);
-      if (product) {
-        product.count += 1;
+      const productOrderList = state.orderList.find((item) => item.id === action.payload.id);
+      if (productOrderList) {
+        productOrderList.count += 1;
+        const productOrderGoods = state.goodsOrder.find((item) => item.id === action.payload.id);
+        productOrderGoods.count = productOrderList.count;
+        [state.totalCount, state.totalPrice] = calcTotal(state.goodsOrder);
       } else {
         state.orderList.push({ ...action.payload, count: 1 });
       }
     },
+    removeProduct: (state, action) => {
+      const productOrderList = state.orderList.find((item) => item.id === action.payload.id);
+      if (productOrderList.count > 1) {
+        productOrderList.count -= 1;
+        const productOrderGoods = state.goodsOrder.find((item) => item.id === action.payload.id);
+        productOrderGoods.count = productOrderList.count;
+        [state.totalCount, state.totalPrice] = calcTotal(state.goodsOrder);
+      } else {
+        state.orderList = state.orderList.filter((item) => item.id !== action.payload.id);
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(ordersRequest.pending, (state) => {
+        state.error = '';
+      })
+      .addCase(ordersRequest.fulfilled, (state, action) => {
+        const goodsOrder = state.orderList.map((item) => {
+          const product = action.payload.find((pr) => pr.id === item.id);
+          product.count = item.count;
+          return product;
+        });
+
+        state.error = '';
+        state.goodsOrder = goodsOrder;
+        [state.totalCount, state.totalPrice] = calcTotal(goodsOrder);
+      })
+      .addCase(ordersRequest.rejected, (state, action) => {
+        state.error = action.payload.error;
+      });
   },
 });
 
-export const { addProduct } = orderSlice.actions;
+export const { addProduct, removeProduct } = orderSlice.actions;
 export default orderSlice.reducer;
